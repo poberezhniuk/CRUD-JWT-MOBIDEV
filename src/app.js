@@ -5,12 +5,12 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 
 const keys = require('../config/keys');
-const { requireAuth } = require('./middleware/authMiddleware');
+const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 
 const app = express();
 
 // middleware
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '/public')));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -32,6 +32,7 @@ mongoose
   .catch((err) => console.log(err));
 
 // routes
+app.get('*', checkUser);
 app.get('/', (req, res) => res.render('pages/home.ejs'));
 app.get('/cities', requireAuth, (req, res) => res.render('pages/cities'));
 
