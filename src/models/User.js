@@ -16,20 +16,29 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Minimum length should be six symbols.'],
   },
 });
-//  fire function before doc saved to DB
-userSchema.post('save', function (doc, next) {
-  console.log('New user was created and saved.', doc);
-  next();
-});
 
-//  fire function after doc saved to DB
+//  fire function before doc saved to DB
 userSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
-  
+
   console.log('User about to be created and saved', this);
   next();
 });
+
+// static method to login user
+userSchema.statics.login = async function (email, password) {
+  const user = await this.findOne({ email });
+
+  if (user) {
+    const auth = await bcrypt.compare(password, user.password);
+    if (auth) {
+      return user;
+    }
+    throw Error('incorrect password');
+  }
+  throw Error('incorrect email');
+};
 
 const User = mongoose.model('user', userSchema);
 
