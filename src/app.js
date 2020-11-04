@@ -4,6 +4,9 @@ const authRoutes = require('./routes/authRoutes');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 
+const keys = require('../config/keys');
+const { requireAuth } = require('./middleware/authMiddleware');
+
 const app = express();
 
 // middleware
@@ -17,10 +20,8 @@ console.log(path.join(__dirname, 'views'));
 app.set('views', path.join(__dirname, '/views'));
 
 // database connection
-const db = require('../config/keys');
-
 mongoose
-  .connect(db.mongoURI, {
+  .connect(keys.mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
@@ -32,7 +33,7 @@ mongoose
 
 // routes
 app.get('/', (req, res) => res.render('pages/home.ejs'));
-app.get('/cities', (req, res) => res.render('pages/cities'));
+app.get('/cities', requireAuth, (req, res) => res.render('pages/cities'));
 
 app.use(authRoutes);
 

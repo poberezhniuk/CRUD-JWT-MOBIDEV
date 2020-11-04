@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+const keys = require('../../config/keys');
+
 const handleErrors = (err) => {
   let errors = { email: '', password: '' };
 
@@ -30,7 +32,7 @@ const handleErrors = (err) => {
 };
 const maxAge = 3 * 24 * 60 * 60;
 const createToken = (id) => {
-  return jwt.sign({ id }, 'mag1ck.drak0n secret', {
+  return jwt.sign({ id }, keys.tokenSecret, {
     expiresIn: maxAge,
   });
 };
@@ -72,4 +74,9 @@ module.exports.login_post = async (req, res) => {
     const errors = handleErrors(err);
     res.status(400).json({ errors });
   }
+};
+
+module.exports.logout_get = async (req, res) => {
+  res.cookie('jwt', '', { maxAge: 1 });
+  res.redirect('/');
 };
